@@ -205,6 +205,26 @@ const SSL_METHOD *sycDTLS_server_method(void) {
 }
 #endif
 
+#if HAVE_TLSv1_3_client_method
+const SSL_METHOD *sycTLSv1_3_client_method(void) {
+   const SSL_METHOD *result;
+   Debug("TLSv1_3_client_method()");
+   result = TLSv1_3_client_method();
+   Debug1("TLSv1_3_client_method() -> %p", result);
+   return result;
+}
+#endif
+
+#if HAVE_TLSv1_3_server_method
+const SSL_METHOD *sycTLSv1_3_server_method(void) {
+   const SSL_METHOD *result;
+   Debug("TLSv1_3_server_method()");
+   result = TLSv1_3_server_method();
+   Debug1("TLSv1_3_server_method() -> %p", result);
+   return result;
+}
+#endif
+
 #if HAVE_DTLSv1_client_method
 const SSL_METHOD *sycDTLSv1_client_method(void) {
    const SSL_METHOD *result;
