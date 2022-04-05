@@ -1003,6 +1003,10 @@ int
 	 } else if (!strcasecmp(me_str, "TLS1.2")) {
 	    method = sycTLSv1_2_client_method();
 #endif
+#if HAVE_TLSv1_3_client_method
+        } else if (!strcasecmp(me_str, "TLS1.3")) {
+           method = sycTLSv1_3_client_method();
+#endif
 #if HAVE_DTLSv1_client_method
 	 } else if (!strcasecmp(me_str, "DTLS1") || !strcasecmp(me_str, "DTLS1.0")) {
 	    method = sycDTLSv1_client_method();
@@ -1021,6 +1025,8 @@ int
 	 method = sycTLS_client_method();
 #elif HAVE_SSLv23_client_method
 	 method = sycSSLv23_client_method();
+#elif HAVE_TLSv1_3_client_method
+	 method = sycTLSv1_3_client_method();
 #elif HAVE_TLSv1_2_client_method
 	 method = sycTLSv1_2_client_method();
 #elif HAVE_TLSv1_1_client_method
@@ -1074,6 +1080,10 @@ int
 	 } else if (!strcasecmp(me_str, "TLS1.2")) {
 	    method = sycTLSv1_2_server_method();
 #endif
+#if HAVE_TLSv1_3_server_method
+        } else if (!strcasecmp(me_str, "TLS1.3")) {
+           method = sycTLSv1_3_server_method();
+#endif
 #if HAVE_DTLSv1_server_method
 	 } else if (!strcasecmp(me_str, "DTLS1") || !strcasecmp(me_str, "DTLS1.0")) {
 	    method = sycDTLSv1_server_method();
@@ -1092,6 +1102,8 @@ int
 	 method = sycTLS_server_method();
 #elif HAVE_SSLv23_server_method
 	 method = sycSSLv23_server_method();
+#elif HAVE_TLSv1_3_server_method
+	 method = sycTLSv1_3_server_method();
 #elif HAVE_TLSv1_2_server_method
 	 method = sycTLSv1_2_server_method();
 #elif HAVE_TLSv1_1_server_method
@@ -1272,7 +1284,7 @@ cont_out:
 	 return -1;
       }
 #endif
-      nid = NID_X9_62_prime256v1;
+      nid = NID_brainpoolP256r1;
       ecdh = EC_KEY_new_by_curve_name(nid);
       if (NULL == ecdh) {
 	 Error("openssl: failed to set ECDHE parameters");
