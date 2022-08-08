@@ -1,18 +1,18 @@
-/* source: xio-socks5.c */
+/* source: xio-hks3.c */
 /* Copyright Gerhard Rieger */
 /* Published under the GNU General Public License V.2, see file COPYING */
 
-/* this file contains the source for opening addresses of socks5 type */
+/* this file contains the source for opening addresses of hks3 type */
 
 #include "xiosysincludes.h"
 #include "xioopen.h"
 #include "xio-socket.h"
 #include "xio-ipapp.h"
 
-#include "xio-socks5.h"
+#include "xio-hks3.h"
 
 
-#if WITH_SOCKS5
+#if WITH_HKS3
 
 #define SOCKSPORT "1080"
 #define SOCKS5_MAXLEN 512
@@ -24,8 +24,6 @@ static int xioopen_socks5_connect(int argc, const char *argv[],
                  int dummy3);
 
 const struct optdesc opt_socks5_port = { "socks5port", NULL, OPT_SOCKS5_PORT, GROUP_SOCKS5, PH_SPEC, TYPE_STRING, OFUNC_SPEC };
-const struct optdesc opt_socks5_username  = { "socks5user",  NULL, OPT_SOCKS5_USERNAME,  GROUP_SOCKS5, PH_SPEC, TYPE_STRING,  OFUNC_SPEC };
-const struct optdesc opt_socks5_password  = { "socks5pass",  NULL, OPT_SOCKS5_PASSWORD,  GROUP_SOCKS5, PH_SPEC, TYPE_STRING,  OFUNC_SPEC };
 
 const struct addrdesc addr_socks5_connect = { "socks5", 3, xioopen_socks5_connect, GROUP_FD|GROUP_SOCKET|GROUP_SOCK_IP4|GROUP_SOCK_IP6|GROUP_IP_TCP|GROUP_SOCKS5|GROUP_CHILD|GROUP_RETRY, 0, 0, 0 HELP(":<socks-server>:<host>:<port>") };
 
@@ -261,13 +259,11 @@ int _xioopen_socks5_connect(struct single *xfd,
    /* prepare */
    targetport    = parseport(targetservice, IPPROTO_TCP/*!*/);
 
-   /* just the simplest authentications */
+   /* just SSL authentications */
    sendmethod = (struct socks5_method *)sendbuff;
    sendmethod->version = 5;	/* protocol version */
-   sendmethod->nmethods = 2;	/* number of proposed authentication types */
-   sendmethod->methods[0] = SOCKS5_METHOD_NOAUTH;	/* no auth at all */
-   sendmethod->methods[1] = SOCKS5_METHOD_USERPASS;	/* username/password */
-   /*sendmethod->methods[2] = SOCKS5_METHOD_AVENTAIL;*/	/* Aventail Connect */
+   sendmethod->nmethods = 1;	/* number of proposed authentication types */
+   sendmethod->methods[0] = SOCKS5_METHOD_SSL;	/* SSL */
    sendlen = 2+sendmethod->nmethods;
 
    /* send socks header (target addr+port, +auth) */
@@ -304,12 +300,15 @@ int _xioopen_socks5_connect(struct single *xfd,
    /*! check if selected methods is one of our proposals */
 
    switch (recvselect->method) {
-   case SOCKS5_METHOD_NOAUTH:
-      break;
-   case SOCKS5_METHOD_USERPASS:
-      if (xio_socks5_username_password(level, opts, xfd) < 0) {
-	 Error("username/password not accepted");
-      }
+   case SOCKS5_METHOD_SSL:
+   // initialize SSL
+
+   // Methode: TLS
+// break (initialize SSL)
+// siehe xio-openssl, wie man tls initialisiert.
+// file descriptor (fd) wird nicht gebraucht
+// Gebraucht wird: Zertifikate laden. Socat Parameter sind structs optdesc, siehe xio-openssl.
+// Zwei neue socat parameter, einen für key und einen für Zertifikat.
       break;
    default:
       Error("socks5 select: unimplemented authentication method selected");
@@ -438,58 +437,6 @@ int _xioopen_socks5_connect(struct single *xfd,
    return STAT_OK;
 }
 
-int xio_socks5_username_password(int level, struct opt *opts,
-				 struct single *xfd) {
-   /*!!! */
-   unsigned char sendbuff[513];
-   unsigned char *pos;
-   char *username = NULL;
-   char *password = NULL;
-   unsigned char recvbuff[2];
-   struct socks5_userpass_reply *reply;
-   int result;
-
-   retropt_string(opts, OPT_SOCKS5_USERNAME, (char **)&username);
-   if (username == NULL) {
-      Error("socks5: username required");
-      return STAT_NORETRY;
-   }
-   retropt_string(opts, OPT_SOCKS5_PASSWORD, (char **)&password);
-   if (password == NULL) {
-      Error("socks5: password required");
-      return STAT_NORETRY;
-   }
-
-   pos = sendbuff;
-   *pos++ = SOCKS5_USERPASS_VERSION;
-   *pos++ = strlen(username);
-   *pos = '\0'; strncat(pos, username, 255);
-   pos += strlen(username);
-   *pos++ = strlen(password);
-   *pos = '\0'; strncat(pos, password, 255);
-   pos += strlen(password);
-
-   result =
-     xio_socks5_dialog(level, xfd, sendbuff, pos-sendbuff,
-		       recvbuff, 2,
-		       "username/password authentication");
-   if (result != STAT_OK) {
-      Msg(level, "socks5 username/password dialog failed");
-      return result;
-   }
-   Info("socks5 username/password authentication succeeded");
-   reply = (struct socks5_userpass_reply *)recvbuff;
-   if (reply->version != SOCKS5_USERPASS_VERSION) {
-      Msg(level, "socks5 username/password authentication version mismatch");
-      return STAT_NORETRY;
-   }
-   if (reply->status != SOCKS5_REPLY_SUCCESS) {
-      Msg(level, "socks5 username/password authentication failure");
-      return STAT_RETRYLATER;
-   }
-   return STAT_OK;
-}
-
 int xio_socks5_dialog(int level, struct single *xfd,
 		      unsigned char *sendbuff, size_t sendlen,
 		      unsigned char *recvbuff, size_t recvlen,
@@ -530,5 +477,5 @@ int xio_socks5_dialog(int level, struct single *xfd,
    return 0;
 }
 
-#endif /* WITH_SOCKS5 */
+#endif /* WITH_HKS3 */
 

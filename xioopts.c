@@ -101,6 +101,12 @@ bool xioopts_ignoregroups;
 #  define IF_SOCKS4(a,b) 
 #endif
 
+#if WITH_HKS3
+#  define IF_HKS3(a,b) {a,b},
+#else
+#  define IF_HKS3(a,b) 
+#endif
+
 #if WITH_PROXY
 #  define IF_PROXY(a,b) {a,b},
 #else
@@ -1560,6 +1566,7 @@ const struct optname optionnames[] = {
 	IF_SOCKET ("sockopt-int",	&opt_setsockopt_int)
 	IF_SOCKET ("sockopt-listen",	&opt_setsockopt_listen)
 	IF_SOCKET ("sockopt-string",	&opt_setsockopt_string)
+	IF_HKS3	  ("socks5port",	&opt_socks5_port)
 	IF_SOCKS4 ("socksport",	&opt_socksport)
 	IF_SOCKS4 ("socksuser",	&opt_socksuser)
 	IF_SOCKET ("socktype",	&opt_so_type)
