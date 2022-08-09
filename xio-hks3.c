@@ -132,7 +132,9 @@ static int xioopen_socks5_connect(int argc, const char *argv[],
 	 level = E_INFO;
       } else
 #endif /* WITH_RETRY */
-	 level = E_ERROR;
+      {
+         level = E_ERROR;
+      }	 
 
       /* this cannot fork because we retrieved fork option above */
       result =

@@ -139,7 +139,7 @@ enum e_func {
 
 #define GROUP_FD	0x00000001	/* everything applyable to a fd */
 #define GROUP_FIFO	0x00000002
-#define GROUP_HKS3	0x00000004
+#define GROUP_SOCKS5	0x00000004
 #define GROUP_BLK	0x00000008
 #define GROUP_CHR 0x00000000  /* currently not used */
 #define GROUP_REG	0x00000010
